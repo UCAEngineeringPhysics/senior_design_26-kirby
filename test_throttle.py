@@ -6,6 +6,7 @@ is_goggled = "n"
 while is_goggled is not "y":
     print("Please put on eye protections!\n")
     is_goggled = input("Are goggles on your face? (y/N)")
+is_free = "y"
 while is_free is not "n":
     print("Please have the stator of the motor clamped or fixed.")
     is_free = input("Is the stator of the motor freely moving? (Y/n)")
