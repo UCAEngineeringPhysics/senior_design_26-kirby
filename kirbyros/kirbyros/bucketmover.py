@@ -31,7 +31,7 @@ class MoveToBucketNode(Node):
 
         self.kernel = np.ones((5, 5), np.uint8)
 
-        # 🧠 For smoothing centroid (reduces wobble)
+        # For smoothing centroid (reduces wobble)
         self.prev_cx = None
 
         self.get_logger().info("MoveToBucketNode running")
@@ -52,7 +52,7 @@ class MoveToBucketNode(Node):
             self.get_logger().error(f"CV Bridge error: {e}")
             return
 
-        # 🔄 FIX: flip upside-down camera
+        # Flip upside-down camera, depending on how camera is positioned
         frame = cv2.flip(frame, -1)
 
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -64,7 +64,7 @@ class MoveToBucketNode(Node):
 
         height, width, _ = frame.shape
 
-        # 🔍 SEARCH MODE
+        # SEARCH MODE
         if not contours:
             twist.angular.z = 0.4
             self.cmd_pub.publish(twist)
@@ -81,7 +81,7 @@ class MoveToBucketNode(Node):
             self.cmd_pub.publish(twist)
             return
 
-        # 📍 Centroid
+        # Centroid
         M = cv2.moments(c)
         if M["m00"] != 0:
             cx = int(M["m10"] / M["m00"])
@@ -89,7 +89,7 @@ class MoveToBucketNode(Node):
         else:
             return
 
-        # 🧠 Smooth centroid (reduces jitter)
+        # Smooth centroid (reduces jitter)
         if self.prev_cx is None:
             smoothed_cx = cx
         else:
@@ -101,23 +101,23 @@ class MoveToBucketNode(Node):
         # Bounding box (for width-based stopping)
         x, y, w, h = cv2.boundingRect(c)
 
-        # 🎯 Draw visuals
+        # Draw visuals
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         cv2.circle(frame, (smoothed_cx, cy), 5, (0, 0, 255), -1)
         cv2.line(frame, (width // 2, 0), (width // 2, height), (255, 0, 0), 2)
 
-        # 🔄 Smooth steering
+        # Smooth steering
         twist.angular.z = -0.002 * error_x
         twist.angular.z = np.clip(twist.angular.z, -0.4, 0.4)
 
-        # 🧊 Dead zone
+        # Dead zone
         if abs(error_x) < 20:
             twist.angular.z = 0.0
 
-        # 📏 Width-based stopping
+        # Width-based stopping
         target_width = int(width * 0.6)
 
-        # 🚗 Forward control
+        # Forward control
         if w < target_width:
             distance_scale = 1 - (w / target_width)
 
