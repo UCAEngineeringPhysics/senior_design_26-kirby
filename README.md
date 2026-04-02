@@ -4,4 +4,4 @@ After connecting the Pi to the Flight Controller through USB C, run this in /Dow
 
     mavproxy.py --master=/dev/ttyACM0 --baudrate 115200
 
-To verify the connection and open MAVLink
+To verify the connection and open MAVProxy
